@@ -1,0 +1,90 @@
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import simpledialog
+
+class TodoApp(tk.Tk):
+    def __init__(self):
+        super().__init__()
+
+        self.tasks = []
+
+        self.title("To-Do List App")
+        self.geometry("400x300")
+
+        self.task_listbox = tk.Listbox(self)
+        self.task_listbox.pack(pady=10, fill=tk.BOTH, expand=True)
+
+        add_button = tk.Button(self, text="Add Task", command=self.add_task)
+        add_button.pack(padx=10, pady=5)
+
+        update_button = tk.Button(self, text="Update Task", command=self.update_task)
+        update_button.pack(padx=10, pady=5)
+
+        delete_button = tk.Button(self, text="Delete Task", command=self.delete_task)
+        delete_button.pack(padx=10, pady=5)
+
+        self.load_tasks()
+        self.update_task_listbox()
+
+    def load_tasks(self):
+        # For demonstration, initialize with some dummy tasks
+        self.tasks = [
+        ]
+    def save_tasks(self):
+        # Save tasks to a file or database
+        # For simplicity, we won't implement file/database saving in this example
+        pass
+    def update_task_listbox(self):
+        self.task_listbox.delete(0, tk.END)
+        for task in self.tasks:
+            self.task_listbox.insert(tk.END, f"{task['name']} - Due: {task['due_date']} - Priority: {task['priority']}")
+    def add_task(self):
+        name = simpledialog.askstring("Add Task", "Enter task name:")
+        if name:
+            due_date = simpledialog.askstring("Add Task", "Enter due date:")
+            if due_date:
+                priority = simpledialog.askstring("Add Task", "Enter priority:")
+                if priority:
+                    self.tasks.append({"name": name, "due_date": due_date, "priority": priority})
+                    self.update_task_listbox()
+                    messagebox.showinfo("Success", "Task added successfully.")
+                else:
+                    messagebox.showwarning("Incomplete", "Priority is required.")
+            else:
+                messagebox.showwarning("Incomplete", "Due date is required.")
+        else:
+            messagebox.showwarning("Incomplete", "Task name is required.")
+    def update_task(self):
+        try:
+            selected_index = self.task_listbox.curselection()[0]
+            selected_task = self.tasks[selected_index]
+            new_name = simpledialog.askstring("Update Task", "Enter updated task name:", initialvalue=selected_task["name"])
+            if new_name:
+                new_due_date = simpledialog.askstring("Update Task", "Enter updated due date:", initialvalue=selected_task["due_date"])
+                if new_due_date:
+                    new_priority = simpledialog.askstring("Update Task", "Enter updated priority:", initialvalue=selected_task["priority"])
+                    if new_priority:
+                        selected_task["name"] = new_name
+                        selected_task["due_date"] = new_due_date
+                        selected_task["priority"] = new_priority
+                        self.update_task_listbox()
+                        messagebox.showinfo("Success", "Task updated successfully.")
+                    else:
+                        messagebox.showwarning("Incomplete", "Priority is required.")
+                else:
+                    messagebox.showwarning("Incomplete", "Due date is required.")
+            else:
+                messagebox.showwarning("Incomplete", "Task name is required.")
+        except IndexError:
+            messagebox.showwarning("No Task Selected", "Please select a task to update.")
+    def delete_task(self):
+        try:
+            selected_index = self.task_listbox.curselection()[0]
+            del self.tasks[selected_index]
+            self.update_task_listbox()
+            messagebox.showinfo("Success", "Task deleted successfully.")
+        except IndexError:
+            messagebox.showwarning("No Task Selected", "Please select a task to delete.")
+if __name__ == "__main__":
+    app = TodoApp()
+    app.mainloop()
